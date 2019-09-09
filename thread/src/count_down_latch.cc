@@ -25,7 +25,7 @@ void CountDownLatch::Await(uint32_t time_ms) {
    }
 }
 
-uint32_t CountDownLatch::GetCount() { 
+uint32_t CountDownLatch::GetCount() const{ 
   std::unique_lock<std::mutex> lock(mutex_);
   return count_; 
 }
