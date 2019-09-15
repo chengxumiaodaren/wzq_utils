@@ -1,3 +1,4 @@
+#include "common/defer.h"
 #include "common/noncopyable.h"
 
 #include <iostream>
@@ -7,10 +8,19 @@ class Test : wzq::NonCopyAble {
    public:
     Test() { std::cout << "Test constructor" << std::endl; }
 
+    void Print() {
+      std::cout << "Test " << std::endl;
+    }
+
     ~Test() { std::cout << "Test deconstructor " << std::endl; }
 };
 
 int main() {
     Test a;
+    WZQ_DEFER{
+      a.Print();
+    };
+    std::cout << "2" << std::endl;
+
     return 0;
 }
