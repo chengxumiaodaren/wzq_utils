@@ -3,33 +3,33 @@
 
 #include "common/noncopyable.h"
 
-#include <iostream>
 #include <functional>
+#include <iostream>
 
 // reference https://github.com/loveyacper/ananas
 
 namespace wzq {
 
 class ExecuteOnScopeExit : wzq::NonCopyAble {
- public:
-  ExecuteOnScopeExit() = default;
+   public:
+    ExecuteOnScopeExit() = default;
 
-  ExecuteOnScopeExit(ExecuteOnScopeExit&& ) = default;
-  ExecuteOnScopeExit& operator=(ExecuteOnScopeExit&& ) = default;
+    ExecuteOnScopeExit(ExecuteOnScopeExit&&) = default;
+    ExecuteOnScopeExit& operator=(ExecuteOnScopeExit&&) = default;
 
-  template<typename F, typename... Args>
-  ExecuteOnScopeExit(F&& f, Args&&... args) {
-    func_ = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-  }
-
-  ~ExecuteOnScopeExit() noexcept {
-    if (func_) {
-      func_();
+    template <typename F, typename... Args>
+    ExecuteOnScopeExit(F&& f, Args&&... args) {
+        func_ = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
     }
-  }
 
-private:
-  std::function<void()> func_;
+    ~ExecuteOnScopeExit() noexcept {
+        if (func_) {
+            func_();
+        }
+    }
+
+   private:
+    std::function<void()> func_;
 };
 
 }  // namespace wzq
