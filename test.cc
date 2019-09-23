@@ -1,6 +1,7 @@
 #include "common/cmd.h"
 #include "common/defer.h"
 #include "common/noncopyable.h"
+#include "common/own_strings.h"
 
 #include <iostream>
 
@@ -14,12 +15,28 @@ class Test : wzq::NonCopyAble {
     ~Test() { std::cout << "Test deconstructor " << std::endl; }
 };
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
+    if (v.empty()) {
+        return os;
+    }
+    os << v.front();
+
+    for (std::size_t i = 1; i < v.size(); ++i) {
+        os << ' ' << v[i];
+    }
+    return os;
+}
+
 int main() {
     Test a;
     WZQ_DEFER { a.Print(); };
     std::cout << "2" << std::endl;
 
     std::cout << wzq::Command::RunCmd("ls");
+
+    std::vector<std::string> words = {"What", "a", "beautiful", "world"};
+    std::cout << words << '\n';
 
     return 0;
 }
