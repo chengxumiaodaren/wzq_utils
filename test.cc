@@ -2,7 +2,9 @@
 #include "common/defer.h"
 #include "common/noncopyable.h"
 #include "common/own_strings.h"
+#include "common/timer.h"
 
+#include <thread>
 #include <iostream>
 
 // 默认是private继承，禁止运行时多态即 wzq::NonCopyAble x = new Test(); 会出现编译错误
@@ -28,7 +30,20 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
     return os;
 }
 
+void TestPriorityQueue3() {
+    wzq::TimerQueue q;
+    std::thread thread1([&] { q.Run(); });
+    thread1.detach();
+    for (int i = 5; i < 15; ++i) {
+        q.AddFuncAfterDuration(std::chrono::seconds(i + 1), [i]() { std::cout << "this is " << i << std::endl; });
+    }
+    std::this_thread::sleep_for(std::chrono::seconds(30));
+    q.Stop();
+}
+
 int main() {
+    TestPriorityQueue3();
+    return 0;
     Test a;
     WZQ_DEFER { a.Print(); };
     std::cout << "2" << std::endl;

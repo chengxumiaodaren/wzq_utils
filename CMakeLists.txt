@@ -17,4 +17,6 @@ add_subdirectory(thread)
 add_subdirectory(singleton)
 
 add_executable(test_wzq test.cc)
+target_link_libraries(test_wzq pthread)
+
 # target_link_libraries(test_thread wzq_thread)

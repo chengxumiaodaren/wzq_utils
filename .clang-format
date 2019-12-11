@@ -1,0 +1,5 @@
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 120
+SortIncludes: true
+MaxEmptyLinesToKeep: 2
