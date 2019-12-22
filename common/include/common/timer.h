@@ -9,7 +9,7 @@ namespace wzq {
 class TimerQueue {
    public:
     struct InternalS {
-        std::chrono::time_point<std::chrono::steady_clock> time_point_;
+        std::chrono::time_point<std::chrono::high_resolution_clock> time_point_;
         std::function<void()> func_;
         bool operator<(const InternalS& b) const { return time_point_ > b.time_point_; }
     };
@@ -23,7 +23,7 @@ class TimerQueue {
                 continue;
             }
             auto s = queue_.top();
-            auto diff = s.time_point_ - std::chrono::steady_clock::now();
+            auto diff = s.time_point_ - std::chrono::high_resolution_clock::now();
             if (std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() > 0) {
                 cond_.wait_for(lock, diff);
                 continue;
@@ -44,7 +44,18 @@ class TimerQueue {
     template <typename R, typename P, typename F, typename... Args>
     void AddFuncAfterDuration(const std::chrono::duration<R, P>& time, F&& f, Args&&... args) {
         InternalS s;
-        s.time_point_ = std::chrono::steady_clock::now() + time;
+        s.time_point_ = std::chrono::high_resolution_clock::now() + time;
+        s.func_ = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+        std::unique_lock<std::mutex> lock(mutex_);
+        queue_.push(s);
+        cond_.notify_all();
+    }
+
+    template <typename F, typename... Args>
+    void AddFuncAtTimePoint(const std::chrono::time_point<std::chrono::high_resolution_clock>& time_point, F&& f,
+                            Args&&... args) {
+        InternalS s;
+        s.time_point_ = time_point;
         s.func_ = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
         std::unique_lock<std::mutex> lock(mutex_);
         queue_.push(s);
