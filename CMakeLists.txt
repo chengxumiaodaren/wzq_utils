@@ -10,6 +10,7 @@ set (CMAKE_CXX_FLAGS "--std=c++17")
 
 include_directories(${CMAKE_SOURCE_DIR}
                     ${CMAKE_SOURCE_DIR}/thread/include/
+                    ${CMAKE_SOURCE_DIR}/timer/include/
                     ${CMAKE_SOURCE_DIR}/singleton/include/
                     ${CMAKE_SOURCE_DIR}/common/include/)
 
