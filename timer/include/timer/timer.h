@@ -38,8 +38,9 @@ class TimerQueue {
     int Size() { return queue_.size(); }
 
     void Stop() {
-        running_ = false;
+        running_.store(false);
         cond_.notify_all();
+        thread_pool_.ShutDown();
     }
 
     template <typename R, typename P, typename F, typename... Args>
@@ -76,8 +77,9 @@ class TimerQueue {
 
     int GetNextRepeatedFuncId() { return repeated_func_id_++; }
 
-    TimerQueue() : running_(true), thread_pool_(wzq::ThreadPool::ThreadPoolConfig{4, 4, 40, std::chrono::seconds(4)}) {
+    TimerQueue() : thread_pool_(wzq::ThreadPool::ThreadPoolConfig{4, 4, 40, std::chrono::seconds(4)}) {
         repeated_func_id_.store(0);
+        running_.store(true);
     }
 
     ~TimerQueue() { Stop(); }
@@ -86,7 +88,7 @@ class TimerQueue {
 
    private:
     void RunLocal() {
-        while (running_) {
+        while (running_.load()) {
             std::unique_lock<std::mutex> lock(mutex_);
             if (queue_.empty()) {
                 cond_.wait(lock);
@@ -129,7 +131,7 @@ class TimerQueue {
 
    private:
     std::priority_queue<InternalS> queue_;
-    bool running_ = false;
+    std::atomic<bool> running_;
     std::mutex mutex_;
     std::condition_variable cond_;
 
